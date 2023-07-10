@@ -2,7 +2,7 @@
   "profiles": {
     "IkeaFunctions": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7035",
+      "commandLineArgs": "--port 7193",
       "launchBrowser": false
     }
   }

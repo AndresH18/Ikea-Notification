@@ -1,45 +1,59 @@
 ﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 namespace IkeaFunctions;
 
-public static class IkeaRelease
+public class IkeaRelease
 {
-    // private readonly IConfiguration _configuration;
-    //
-    // public IkeaRelease(IConfiguration configuration)
-    // {
-    //     _configuration = configuration;
-    // }
+    private readonly ILogger _logger;
 
-    [FunctionName("IkeaRelease")]
-    public static async Task RunAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
+    public IkeaRelease(ILoggerFactory loggerFactory)
     {
-        log.LogInformation($"C# Timer trigger function executed at: {DateTime.UtcNow}");
-        log.LogInformation("This is a key {key}", Environment.GetEnvironmentVariable("MY_VARIABLE_KEY"));
+        _logger = loggerFactory.CreateLogger<IkeaRelease>();
+    }
+
+    [Function("IkeaRelease")]
+    public async Task RunAsync([TimerTrigger("0 */5 * * * *")] MyInfo myTimer)
+    {
+        _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.UtcNow}");
+        _logger.LogInformation("This is a key {key}", Environment.GetEnvironmentVariable("MY_VARIABLE_KEY"));
         try
         {
             var client = new HttpClient {BaseAddress = new Uri(IkeaVerificationService.PageAddress)};
             var response = await client.GetStringAsync("");
-        
-            await IkeaVerificationService.Run(response, log);
+
+            await IkeaVerificationService.Run(response, _logger);
         }
         catch (HttpRequestException ex)
         {
-            log.LogError(
+            _logger.LogError(
                 "The request failed due to an underlying issue such as network connectivity, " +
                 "DNS failure, server certificate validation (or timeout for .NET Framework only).");
         }
         catch (TaskCanceledException ex)
         {
-            log.LogError("The request failed due to timeout.");
+            _logger.LogError("The request failed due to timeout.");
         }
         catch (Exception ex)
         {
-            log.LogError(ex, "Unexpected error during function execution.");
+            _logger.LogError(ex, "Unexpected error during function execution.");
         }
     }
+}
+
+public class MyInfo
+{
+    public MyScheduleStatus ScheduleStatus { get; set; }
+
+    public bool IsPastDue { get; set; }
+}
+
+public class MyScheduleStatus
+{
+    public DateTime Last { get; set; }
+
+    public DateTime Next { get; set; }
+
+    public DateTime LastUpdated { get; set; }
 }
