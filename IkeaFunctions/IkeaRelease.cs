@@ -14,7 +14,7 @@ public class IkeaRelease
     }
 
     [Function("IkeaRelease")]
-    public async Task RunAsync([TimerTrigger("0 */5 * * * *")] MyInfo myTimer)
+    public async Task RunAsync([TimerTrigger("0 0 8,20 * * *")] MyInfo myTimer)
     {
         _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.UtcNow}");
         _logger.LogInformation("This is a key {key}", Environment.GetEnvironmentVariable("MY_VARIABLE_KEY"));
