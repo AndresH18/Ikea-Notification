@@ -58,8 +58,8 @@ public static class IkeaVerificationService
                     recipientAddress: recipient,
                     subject: "IKEA Status Update - No Change",
                     htmlContent: null,
-                    plainTextContent: $"""No change detected on the web page of IKEA. You can check by yourself here {PageAddress}""");
-
+                    plainTextContent:
+                    $"""No change detected on the web page of IKEA. You can check by yourself here {PageAddress}""");
             }
 
 
